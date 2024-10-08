@@ -24,7 +24,7 @@ export async function getUserDetails(user_id: string) {
     const response = await axios.get(url);
     return response.data;
   } catch (error) {
-    console.error('getUserDetails Error:', error);
+    console.error('getdasDetails Error:', error);
     throw error;
   }
 }
@@ -35,7 +35,7 @@ export async function dashboardChats(user_id: string) {
     const response = await axios.get(url);
     return response.data;
   } catch (error) {
-    console.error('getUserDetails Error:', error);
+    console.error('dashboardChats Error:', error);
     throw error;
   }
 }

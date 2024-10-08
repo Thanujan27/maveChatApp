@@ -16,6 +16,9 @@ import {
 } from "../../../Api Calls/Authentication";
 import { useSelector } from "react-redux";
 import ImagePicker from "react-native-image-crop-picker";
+import { dispatch } from "../../../../redux/store";
+import { updateProfileId, updatIsSignIn } from "../../../../redux/slices/languageSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Signup() {
   const [userName, setUserName] = useState("");
@@ -82,7 +85,14 @@ export default function Signup() {
           // console.log(result,'resultresult');
 
           if (data?.success) {
-            navigation.replace("MainDrawer");
+            const idToStore = data?.id;
+            dispatch(updateProfileId(idToStore));
+
+            await AsyncStorage.setItem('user_id', idToStore);
+           dispatch(updatIsSignIn(true));
+   
+   
+        //    navigation.replace("MainDrawer");
           } else {
             Alert.alert("Error", "System Error, Try again", [
               {

@@ -8,6 +8,7 @@ import {
   StyleSheet,
   PermissionsAndroid,
   FlatList,
+  Share,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import DrawerIcon from '../../../assets/svg/DrawerIcon';
@@ -21,7 +22,14 @@ import {
   NewChat,
 } from '../../Api Calls/Authentication';
 import {dispatch, useSelector} from '../../../redux/store';
-import {updateContactName, updateProfileId, updateReceiverId, updateReceiverIds} from '../../../redux/slices/languageSlice';
+import {
+  updateContactName,
+  updateProfileId,
+  updateReceiverId,
+  updateReceiverIds,
+} from '../../../redux/slices/languageSlice';
+import { ListItem, SearchBar } from "react-native-elements";
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ContactsScreen() {
@@ -68,48 +76,40 @@ export default function ContactsScreen() {
   });
 
   const [allPhoneNumbers, setAllPhoneNumbers] = useState([]);
-  const [contacts, setContacts] = useState([]);
 
   const MaveNumbers = useSelector((state: any) => state?.language?.maveNumbers);
-  const NonMaveNumbers = useSelector((state: any) => state?.language?.nonMaveNumbers);
+  console.log(MaveNumbers, 'MaveNumbers');
+  const NonMaveNumbers = useSelector(
+    (state: any) => state?.language?.nonMaveNumbers,
+  );
 
   const [matchingPhoneNumbers, setMatchingPhoneNumbers] = useState([]);
   const [nonMatchingPhoneNumbers, setNonMatchingPhoneNumbers] = useState([]);
+  const [matchingContacts, setMatchingContacts] = useState([]);
+  const [searchText, setSearchText] = useState(''); // Use a more descriptive variable name
 
-  useEffect(() => {
-    const fetchContacts = async () => {
-      try {
-        const allContacts: any = await Contacts.getAll();
-        setContacts(allContacts);
 
- 
-  
-  
+  const handleSearch = (text:any) => {
+    setSearchText(text);
 
-        //  console.log('dfsjdfhjskdfhksjdfhjk', results);
-      } catch (error) {
-        console.error('Error fetching contacts:', error);
-      }
-    };
+    if (text) {
+      const filteredContacts:any = [...MaveNumbers, ...NonMaveNumbers].filter((contact: any) => {
+        const normalizedSearchText = text.toLowerCase();
+        const normalizedName = contact.ContactName?.toLowerCase() || '';
+     //   const normalizedPhoneNumbers = contact.phoneNumbers?.map((number) => number.number.toLowerCase()) || [];
+        return (
+          normalizedName.includes(normalizedSearchText)
+        );
+      });
+      setMatchingContacts(filteredContacts);
+      console.log(filteredContacts,'filteareadContacts')
+    } else {
+      setMatchingContacts([]);
+    }
+  };
 
-    fetchContacts();
-    // getData();
-  }, []);
 
-  // const getData = async () => {
-  //   try {
-  //     const results: any = await CheckPhoneNumbers(allPhoneNumbers);
-  //     console.log('dfsjdfhjskdfhksjdfhjk', results);
-  //   } catch (error: any) {}
-  // };
-//   AsyncStorage.getItem('user_id').then((storedUserId) => {
-//     dispatch(updateProfileId(storedUserId));
-
-//     console.log('sssssaaaaaaaaaaaaa', storedUserId);
-// }); 
-
-const ProfileId = useSelector((state: any) => state?.language?.profileId);
-
+  const ProfileId = useSelector((state: any) => state?.language?.profileId);
 
   const handleContactPress = async (
     Name: any,
@@ -117,79 +117,47 @@ const ProfileId = useSelector((state: any) => state?.language?.profileId);
     receiverProfileId: any,
   ) => {
     dispatch(updateReceiverId(receiverProfileId));
-    
-    // AsyncStorage.setItem('receiverID', JSON.stringify(receiverProfileId));
-    // await AsyncStorage.setItem('receiverID', receiverProfileId.toString());
-
-    // // Retrieve all stored receiver IDs from AsyncStorage
-    // const storedReceiverIDs = await AsyncStorage.getItem('receiverIDs');
+    console.log(
+      Name,
+      phoneNumber,
+      receiverProfileId,
+      'ssssssssssssssssssssssssssss',
+    );
+    if(receiverProfileId!==undefined){
+      try {
+        const NewChatCreate: any = await NewChat(
+          ProfileId,
+          'string',
+          receiverProfileId,
+          'receiverProfileUrl',
+          'PERSONAL_TO_PERSONAL',
+          'PERSONAL',
+        );
+        console.log(NewChatCreate, 'NewChatCreate');
+        if (NewChatCreate?.success === true) {
+          navigation.navigate('SingleChat');
   
-    // // Parse the stored IDs into an array if they exist
-    // let receiverIDArray = storedReceiverIDs ? JSON.parse(storedReceiverIDs) : [];
-    // receiverIDArray.push(receiverProfileId);
-    // await AsyncStorage.setItem('receiverIDs', JSON.stringify(receiverIDArray));
-
-    // dispatch(updateReceiverIds(receiverIDArray));
-
-    // if (storedReceiverIDs !== null) {
-    //   receiverIDArray = JSON.parse(storedReceiverIDs);
-    //   dispatch(updateReceiverIds(receiverIDArray));
-
-    // }
-  
-    // // Check if the current receiver ID is already in the array
-    // if (!receiverIDArray.includes(receiverProfileId)) {
-    //   // Add the current receiver ID to the array
-    //   receiverIDArray.push(receiverProfileId);
-    //   dispatch(updateReceiverIds(receiverIDArray));
-
-  
-    //   // Store the updated array back in AsyncStorage
-    //   await AsyncStorage.setItem('receiverIDs', JSON.stringify(receiverIDArray));
-    // }
-
-    console.log(Name,phoneNumber,receiverProfileId,'ssssssssssssssssssssssssssss')
-    try {
-      const NewChatCreate: any = await NewChat(
-        ProfileId,
-        "string",
-        receiverProfileId,
-        'receiverProfileUrl',
-        'PERSONAL_TO_PERSONAL',
-        'PERSONAL',
-      );
-console.log(NewChatCreate)
-      // setContacts(allContacts);
-
-      // const phoneNumbers = allContacts.flatMap(
-      //   (contact: {phoneNumbers: any[]}) =>
-      //     contact.phoneNumbers.map(phone => phone.number),
-      // );
-      // setAllPhoneNumbers(phoneNumbers);
-      //  console.log('phoneNumbersphoneNumbers',phoneNumbers,MaveNumbers)
-
-      //  const matchingNumbers = phoneNumbers.filter((Number:any) =>
-      //   MaveNumbers.includes(Number)
-      // );
-      // const nonMatchingNumbers = phoneNumbers.filter(
-      //   (Number:any) => !MaveNumbers.includes(Number)
-      // );
-
-      // setMatchingPhoneNumbers(matchingNumbers);
-      // setNonMatchingPhoneNumbers(nonMatchingNumbers);
-      //  const results: any = await CheckPhoneNumbers(allPhoneNumbers);
-
-      //  console.log('dfsjdfhjskdfhksjdfhjk', results);
-    } catch (error) {
-      console.error('Error fetching contacts:', error);
+          dispatch(updateContactName(Name));
+        } else {
+           
+          console.error('chat not create');
+        }
+      } catch (error) {
+        console.error('Error fetching contacts:', error);
+      }
     }
-   navigation.navigate('SingleChat');
-
-    dispatch(updateContactName(Name));
+    else{
+      Share.share({
+        message:
+          `Let's chat on MAVE! It's a fast, simple, and secure app we can use to message and call each other for free. Get it at https://whatsapp.com/dl/code=CfNjJ2qcyk `,
+      });
+    }
+  
 
     // Handle contact selection or other actions here
     console.log('Contacts:', Name, phoneNumber);
   };
+  
   const MaverenderContactItem = ({item}: any) => {
     return (
       <TouchableOpacity
@@ -205,29 +173,39 @@ console.log(NewChatCreate)
           source={require('../../../assets/images/contactImage.png')}
           className="w-11 h-11"
         />
-        <Text className="text-[#0F1828] text-sm font-semibold mx-3 p-2">{item.displayName}</Text>
+        <Text className="text-[#0F1828] text-sm font-semibold mx-3 p-2">
+          {item.ContactName}
+        </Text>
 
         {/* Add other contact details as needed */}
       </TouchableOpacity>
     );
   };
   const renderContactItem = ({item}: any) => {
+    console.log( item?.ProfileId,' item?.profileId')
     return (
+      
       <TouchableOpacity
-        // onPress={() =>
-        //   handleContactPress(
-        //     item?.ContactName,
-        //     item?.phoneNumber,
-        //     item?.profileId,
-        //   )
-        // } // Corrected onPress syntax
+        onPress={() =>
+          handleContactPress(
+            item?.ContactName,
+            item?.phoneNumber,
+            item?.ProfileId,
+          )
+        } // Corrected onPress syntax
         className="gap-3 mx-1 self-start p-2 flex-row justify-start items-center w-full flex">
         <Image
           source={require('../../../assets/images/contactImage.png')}
           className="w-11 h-11"
         />
-        <Text className="text-[#0F1828] text-sm font-semibold mx-3 p-2">{item.ContactName}</Text>
-        <Text className="flex-end flex-1 text-black text-sm content-end text-right self-end items-end justify-end w-full  mx-3 p-2">Invite</Text>
+        <Text className="text-[#0F1828] text-sm font-semibold mx-3 p-2">
+          {item.ContactName}
+        </Text>
+        {item?.ProfileId === undefined && 
+        <Text className="flex-end flex-1 text-black text-sm content-end text-right self-end items-end justify-end w-full  mx-3 p-2">
+        Invite
+      </Text>}
+        
 
         {/* Add other contact details as needed */}
       </TouchableOpacity>
@@ -245,7 +223,7 @@ console.log(NewChatCreate)
               className="w-6 h-6 mr-2"
             />
           </TouchableOpacity>
-
+        
           <TouchableOpacity>
             <Text className="text-lg font-normal ml-2 text-black">
               Select contact
@@ -257,25 +235,30 @@ console.log(NewChatCreate)
         </View>
       </View>
       <View className="flex items-center w-full my-4 ">
-          {/* <View className="w-full border-t-2 border-black "/> */}
-          <TextInput
-            placeholder="Search"
-            // inlineImagePadding={2}
-            // inlineImageLeft={'SearchIcon.png'}
-            placeholderTextColor={'#ADB5BD'}
-            onChangeText={handleOnChangeText}
-            value={input}
-            className="w-11/12 bg-[#F7F7FC] rounded-lg p-2"
-          />
-          </View>
-      <View className="w-full">
+        {/* <View className="w-full border-t-2 border-black "/> */}
+        
+        <TextInput
+          placeholder="Search Contacts" // Improved placeholder text
+          onChangeText={handleSearch}
+          value={searchText}
+          className="w-11/12 bg-[#F7F7FC] rounded-lg p-2"
+        />
+      </View>
+      {searchText && (
+        <View className="w-full flex mx-4 self-center ">
+          <FlatList data={matchingContacts} renderItem={renderContactItem} keyExtractor={(item:any) => item.id} />
+        </View>
+      )}
+      {!searchText && ( 
+        <View className='w-full'>
+        <View className="w-full">
         <Text className="text-black font-medium mx-3 text-start justify-center my-3">
           Contacts on Mave
         </Text>
       </View>
       <View className="w-full flex mx-4 self-center ">
         <FlatList
-          data={contacts}
+          data={MaveNumbers}
           renderItem={MaverenderContactItem}
           keyExtractor={(item: any) => item.id}
         />
@@ -292,6 +275,8 @@ console.log(NewChatCreate)
           keyExtractor={(item: any) => item.id}
         />
       </View>
+      </View>)}
+    
     </View>
   );
 }

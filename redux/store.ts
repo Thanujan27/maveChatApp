@@ -1,5 +1,6 @@
 import { useDispatch as useReduxDispatch } from 'react-redux';
 import { useSelector as useReduxSelector } from 'react-redux';
+import { Provider } from 'react-redux';
 
 import { configureStore } from '@reduxjs/toolkit';
 import { rootReducer } from './rootReducers';

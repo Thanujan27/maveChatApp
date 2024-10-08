@@ -4,6 +4,8 @@ import OTPTextInput from "react-native-otp-textinput";
 import { validateVerificationOTPCode } from "../../../Api Calls/Authentication";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { dispatch } from "../../../../redux/store";
+import { updateProfileId, updatIsSignIn } from "../../../../redux/slices/languageSlice";
 
 
 export default function OtpVerification() {
@@ -48,38 +50,18 @@ console.log(phoneNumber)
           // setNewRegsiteredPhoneNo(phone_no);
           if (data?.success==='true' && isOldAccount === true) {
             const idToStore = data?.id;
+         //   dispatch(updatIsSignIn(true));
+
             console.log(idToStore, 'idToStoreidToStore')
             // await AsyncStorage.setItem('user_id', (idToStore));
-         
+            dispatch(updateProfileId(idToStore));
+
     await AsyncStorage.setItem('user_id', idToStore);
+    dispatch(updatIsSignIn(true));
 
-    // Use a callback or await the Promise
-  
-
-
-            navigation.navigate('MainDrawer')
-           
-            // if (ifOldAccount) {
-            //   await AsyncStorage?.setItem('access_token', value?.data?.token);
-              // if (rootUser == 'Driver') {
-                // setIsLoading(false);
-                // dispatch(setLoggedinDriverId(value?.data?.id));
-                // AsyncStorage.setItem('driverId', value?.data?.id);
-                // AsyncStorage.setItem('loggedIn', 'loggedIn');
-                // navigation?.navigate('AdminReviewScreen');
-              // } else {
-                // navigateToDashboard && navigateToDashboard(value?.data);
-              // }
-            // } else {
-            //   if (rootUser == 'Driver') {
-            //     setIsLoading(false);
-            //     navigation?.navigate('DriverDetails');
-            //   } else {
-            //     setIsLoading(true);
-            //     navigation?.navigate('SignupScreen', { phone_no: phone_no });
-            //   }
-            // }
           } if(data?.success==='true' && isOldAccount === false) {
+       //   dispatch(updatIsSignIn(true));
+
             navigation.navigate('Signup')
 
             // setIsLoading(false);

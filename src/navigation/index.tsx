@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {Provider as ReduxProvider} from 'react-redux';
-import {store} from '../../redux/store';
+import {Provider as ReduxProvider, useSelector} from 'react-redux';
+import {dispatch, store} from '../../redux/store';
 import {useEffect, useState} from 'react';
 import GetStarted from '../screens/Marekting/getStarted';
 import Login from '../screens/authentication/login';
@@ -13,33 +13,45 @@ import {NavigationContainer} from '@react-navigation/native';
 import ContactsScreen from '../screens/home/contact';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {Image} from 'react-native-svg';
 import Settings from '../screens/settings';
 import Home from '../screens/home';
+import {Image} from 'react-native';
+import { Provider } from 'react-redux';
+import { updateProfileId } from '../../redux/slices/languageSlice';
+import HomeIcon from '../../assets/BottomIcons/Home';
+import RoutesIcon from '../../assets/BottomIcons/Routes';
+
+import ProfileIcon from '../../assets/BottomIcons/ProfileIcon';
+
 
 const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+const Tab: any = createBottomTabNavigator();
 
 export default function Navigation() {
+
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const SignIn = useSelector((state: any) => state?.language?.isSignIn);
+  console.log(isSignedIn, SignIn,'isSignedIn');
 
   useEffect(() => {
+    
     const fetchUserId = async () => {
       try {
         const storedUserId = await AsyncStorage.getItem('user_id');
-        if (storedUserId) {
+        if (SignIn || storedUserId) {
           setIsSignedIn(true);
-          // dispatch(updateProfileId(storedUserId));
-          console.log('sssssaaaaaaaaaaaaaaa', storedUserId, isSignedIn);
+           dispatch(updateProfileId(storedUserId));
+          console.log('sssssaaaaaaaaadaaaaaa', storedUserId, isSignedIn);
         }
       } catch (error) {
         console.error('Error fetching user ID:', error);
       }
     };
 
-    //    fetchUserId();
-  }, []);
-  function NonAuthScreens() {
+    fetchUserId();
+  }, [isSignedIn,SignIn]);
+
+  function HomeScreens() {
     return (
       <Stack.Navigator
         screenOptions={{
@@ -58,8 +70,30 @@ export default function Navigation() {
       </Stack.Navigator>
     );
   }
+  function AuthScreen() {
+    return (
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}
+        initialRouteName="GetStarted">
+        <Stack.Screen name="GetStarted">
+          {(props: any) => <GetStarted {...props} />}
+        </Stack.Screen>
+        <Stack.Screen name="Login">
+          {(props: any) => <Login {...props} />}
+        </Stack.Screen>
+        <Stack.Screen name="Signup">
+          {(props: any) => <Signup {...props} />}
+        </Stack.Screen>
+        <Stack.Screen name="OtpVerification">
+          {(props: any) => <OtpVerification {...props} />}
+        </Stack.Screen>
+      </Stack.Navigator>
+    );
+  }
 
-  function AuthScreens() {
+  function TabNavigator() {
     return (
       <>
         <Tab.Navigator
@@ -70,10 +104,11 @@ export default function Navigation() {
           initialRouteName="Home">
           <Tab.Screen
             name="Home"
+            component={HomeScreens}
             options={{
               tabBarShowLabel: true,
               headerShown: false,
-              tabBarLabel: 'Messages', // Adjust label text as needed
+              //    tabBarLabel: 'Messages', // Adjust label text as needed
               // tabBarLabelPosition: 'below-icon',
               tabBarLabelStyle: {
                 fontSize: 12, // Adjust font size as needed
@@ -81,14 +116,9 @@ export default function Navigation() {
                 textAlign: 'center',
                 fontWeight: '600',
               },
-              // tabBarIcon: ({ focused, color, size }) => (
-              //   <Image
-              //     source={require('../../assets/images/messages.png')} // Replace with your SVG path
-              //     style={{ width: 24, height: 24, tintColor: 'black' }}
-              //   />
-              // ),
+              tabBarIcon: ({focused}:any) => <HomeIcon focused={focused} />,
             }}>
-            {(props: any) => <MainDrawer {...props} />}
+            {/* {(props: any) => <MainDrawer {...props} />} */}
           </Tab.Screen>
           <Tab.Screen
             name="Settings"
@@ -103,12 +133,21 @@ export default function Navigation() {
                 //     style={styles.icon}
                 //   />
                 // ),
+                tabBarLabelStyle: {
+                  fontSize: 12, // Adjust font size as needed
+                  color: 'black',
+                  textAlign: 'center',
+                  fontWeight: '600',
+                  
+                },
+                tabBarIcon: ({focused}:any) => <ProfileIcon focused={focused} />,
               }
             }>
+              
             {(props: any) => <Settings {...props} />}
           </Tab.Screen>
           <Tab.Screen
-            name="menu3"
+            name="Contacts"
             options={
               {
                 // @ts-ignore
@@ -120,12 +159,14 @@ export default function Navigation() {
                 //   //   style={styles.icon}
                 //   // />
                 // ),
+                tabBarIcon: ({focused}) => <RoutesIcon focused={focused} />,
+
               }
             }>
             {(props: any) => <Settings {...props} />}
           </Tab.Screen>
           <Tab.Screen
-            name="menu4"
+            name="Notifications"
             options={
               {
                 // @ts-ignore
@@ -137,58 +178,17 @@ export default function Navigation() {
                 //     style={styles.icon}
                 //   />
                 // ),
-              }
-            }>
-            {(props: any) => <Settings {...props} />}
-          </Tab.Screen>
-          <Tab.Screen
-            name="menu5"
-            options={
-              {
-                // @ts-ignore
-                // tabBarIcon: ({ref}) => (
-                //   <Lottie
-                //     ref={ref}
-                //     loop={false}
-                //     source={require('../../assets/lottie/settings.icon.json')}
-                //     style={styles.icon}
-                //   />
-                // ),
+                tabBarIcon: ({focused}) => <RoutesIcon focused={focused} />,
+
               }
             }>
             {(props: any) => <Settings {...props} />}
           </Tab.Screen>
         </Tab.Navigator>
-        {/* <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
-        initialRouteName={isSignedIn ? ("MainDrawer" ) : ( 'MainDrawer' )}>
-        <Stack.Screen name="GetStarted">
-          {(props: any) => <GetStarted {...props} />}
-        </Stack.Screen>
-        <Stack.Screen name="Login">
-          {(props: any) => <Login {...props} />}
-        </Stack.Screen>
-        <Stack.Screen name="OtpVerification">
-          {(props: any) => <OtpVerification {...props} />}
-        </Stack.Screen>
-        <Stack.Screen name="Signup">
-          {(props: any) => <Signup {...props} />}
-        </Stack.Screen>
-        <Stack.Screen name="MainDrawer">
-          {(props: any) => <MainDrawer {...props} />}
-        </Stack.Screen>
-        <Stack.Screen name="SingleChat">
-          {(props: any) => <SIngleChat {...props} />}
-        </Stack.Screen>
-        <Stack.Screen name="ContactsScreen">
-          {(props: any) => <ContactsScreen {...props} />}
-        </Stack.Screen>
-      </Stack.Navigator> */}
       </>
     );
   }
+
   return (
     <>
       <ReduxProvider store={store}>
@@ -197,32 +197,15 @@ export default function Navigation() {
             headerShown: false,
           }}>
           {isSignedIn ? (
-            <Stack.Screen name="MainDrawer">
-              {(props: any) => <AuthScreens {...props} />}
+            <Stack.Screen name="TabScreen">
+              {(props: any) => <TabNavigator {...props} />}
             </Stack.Screen>
           ) : (
-            <Stack.Screen name="GetStarted">
-              {(props: any) => <AuthScreens {...props} />}
+
+            <Stack.Screen name="AuthScreen">
+              {(props: any) => <AuthScreen {...props} />}
             </Stack.Screen>
           )}
-          <Stack.Screen name="Login">
-            {(props: any) => <Login {...props} />}
-          </Stack.Screen>
-          <Stack.Screen name="OtpVerification">
-            {(props: any) => <OtpVerification {...props} />}
-          </Stack.Screen>
-          <Stack.Screen name="Signup">
-            {(props: any) => <Signup {...props} />}
-          </Stack.Screen>
-          <Stack.Screen name="MainDrawer">
-            {(props: any) => <MainDrawer {...props} />}
-          </Stack.Screen>
-          <Stack.Screen name="SingleChat">
-            {(props: any) => <SIngleChat {...props} />}
-          </Stack.Screen>
-          <Stack.Screen name="ContactsScreen">
-            {(props: any) => <ContactsScreen {...props} />}
-          </Stack.Screen>
         </Stack.Navigator>
       </ReduxProvider>
     </>

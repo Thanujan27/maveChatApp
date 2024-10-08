@@ -51,6 +51,7 @@ export default function SIngleChat() {
   const navigation: any = useNavigation();
   const [userData, setUserData] = useState<any>({});
   const [chatarray, setchatarray] = useState<any[]>([]);
+  console.log(chatarray,'chatarraychatarray')
   const image = {
     uri: 'https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png',
   };
@@ -127,10 +128,36 @@ export default function SIngleChat() {
 
   const ContactName = useSelector((state: any) => state?.language?.contactName);
 
+  
+  const newContact = {
+    name: ContactName,
+    profileId: ReceiverId
+  };
+  
   useEffect(() => {
-    // Update the document title using the browser API
+    const storeChat = async () => {
+      try {
+        if (chatarray.length > 0) { // Check if chatarray is not empty
+          // const existingChats = await AsyncStorage.getItem('contactName');
+          // let ContactNames = existingChats ? JSON.parse(existingChats) : {};
+          console.log('firstaa')
+          const existingContacts = await AsyncStorage.getItem('contactNamesWithProfileIds');
+          let contactNames = existingContacts ? JSON.parse(existingContacts) : [];
+    console.log(contactNames,'contactNamescontactNames')
+          // Add the new ContactName to the array
+          contactNames.push(newContact);
+    
+          // Store the updated array back to AsyncStorage
+          await AsyncStorage.setItem('contactNamesWithProfileIds', JSON.stringify(contactNames));
+        }
+      } catch (error) {
+        console.error('Error storing chat data', error);
+      }
+    };
+      // Update the document title using the browser API
     connect();
-  }, []);
+    storeChat();
+  }, [chatarray]);
 
   const connect = () => {
     let Sock = new SockJS(`http://3.109.218.138:8088/ws`);

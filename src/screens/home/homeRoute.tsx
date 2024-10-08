@@ -35,6 +35,7 @@ export default function MainDrawer() {
   const navigation: any = useNavigation();
 
   const [userName, setUserName] = React.useState('Mave');
+  const [profileImage, setProfileImage] = React.useState('Mave');
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -45,6 +46,10 @@ export default function MainDrawer() {
           console.log('sssssaaaaaaassaaaaaaaa', results);
 
           setUserName(results?.userName)
+          setProfileImage(results?.profileImage)
+          console.log('sssssaaaaaaassaaaaaaaa', results,results?.profileImage);
+
+          
         }
       } catch (error) {
         console.error('Error fetching user ID:', error);

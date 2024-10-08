@@ -20,6 +20,8 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 import Navigation from './src/navigation';
+import { Provider } from 'react-redux';
+import { store } from './redux/store';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -60,9 +62,12 @@ function App(): React.JSX.Element {
 
   return (
     <>
+        <Provider store={store}>
+
       <NavigationContainer>
         <Navigation />
       </NavigationContainer>
+      </Provider>
     </>
   );
 }

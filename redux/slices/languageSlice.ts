@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 // import { getDynamciVariables } from '../../utils/getFirbaseData';
 import { dispatch } from "../store";
+import { Provider } from 'react-redux';
 
 type UserState = {
   PhoneNo: any;
@@ -10,6 +11,7 @@ type UserState = {
 
   receiverId:any;
   receiverIds:any;
+  isSignIn:boolean;
 
   profileId:any;
 };
@@ -17,6 +19,7 @@ const initialState: UserState = {
   PhoneNo: undefined,
   contactName: undefined,
   maveNumbers:undefined,
+  isSignIn:false,
   nonMaveNumbers:undefined,
 
   receiverId:undefined,
@@ -45,6 +48,9 @@ const slice = createSlice({
     updateNonMaveNumbers(state: any, action: { payload: any }) {
       state.nonMaveNumbers = action.payload;
     },
+    updatIsSignIn(state: any, action: { payload: any }) {
+      state.isSignIn = action.payload;
+    },
     updateReceiverId(state: any, action: { payload: any }) {
       state.receiverId = action.payload;
     },
@@ -59,4 +65,4 @@ const slice = createSlice({
 export default slice.reducer;
 const { actions } = slice;
 
-export const { setPhoneNo,updateReceiverIds, updateNonMaveNumbers,updateProfileId,updateContactName,updateMaveNumbers,updateReceiverId } = actions;
+export const { updatIsSignIn,setPhoneNo,updateReceiverIds, updateNonMaveNumbers,updateProfileId,updateContactName,updateMaveNumbers,updateReceiverId } = actions;
